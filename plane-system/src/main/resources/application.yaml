@@ -1,0 +1,28 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: plane-system
+
+  datasource:
+    url: jdbc:mysql://plane-mysql:3306/plane-system?createDatabaseIfNotExist=true
+    username: superadmin
+    password: plane@123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+        hibernate:
+            format_sql: true
+            default_schema: plane-system
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug
+        type:
+          descriptor:
+            sql:
+              BasicBinder: trace

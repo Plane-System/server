@@ -1,10 +1,37 @@
 services:
-  mysql:
-    image: 'mysql:latest'
-    environment:
-      - 'MYSQL_DATABASE=mydatabase'
-      - 'MYSQL_PASSWORD=secret'
-      - 'MYSQL_ROOT_PASSWORD=verysecret'
-      - 'MYSQL_USER=myuser'
+  plane-system:
+    build:
+      context: ./plane-system
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - plane-mysql
     ports:
-      - '3306'
+      - "8080:8080"
+    networks:
+      - backend
+  plane-mysql:
+    image: 'mysql:9.0'
+    restart: unless-stopped  #Nếu container bị dừng, nó sẽ khởi động lại, trừ khi tắt thủ công
+    ports:
+      - "33062:3306"
+    environment:
+      - 'MYSQL_DATABASE=plane-system'
+      - 'MYSQL_USER=superadmin'
+      - 'MYSQL_PASSWORD=plane@123'
+      - 'MYSQL_ROOT_PASSWORD=mysql'
+      - 'TZ=Asia/Ho_Chi_Minh'
+    volumes:
+      - plane-system-mysql-data:/var/lib/mysql
+#      - ./plane-system/docker/mysql/my.cnf:/etc/mysql/my.cnf  Nếu cần setting riêng thì dùng
+    command:
+#    - --defaults-file=/etc/mysql/my.cnf   Sử dụng file cấu hình tùy chỉnh
+    - --character-set-server=utf8mb4
+    networks:
+      - backend
+networks:
+  backend:
+    driver: bridge
+volumes:
+  plane-system-mysql-data:
+      driver: local
