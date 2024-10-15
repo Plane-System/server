@@ -1,4 +1,27 @@
 services:
+  kong-gateway:
+    image: kong/kong-gateway:3.8.0.0
+    container_name: kong-gateway
+    networks:
+      - backend
+    volumes:
+      - ./kong/config/kong.yml:/kong/declarative/kong.yml:ro #ro: read only
+    environment:
+      - KONG_DATABASE=off
+      - KONG_DECLARATIVE_CONFIG=/kong/declarative/kong.yml
+      - KONG_PROXY_ACCESS_LOG=/dev/stdout
+      - KONG_ADMIN_ACCESS_LOG=/dev/stdout
+      - KONG_PROXY_ERROR_LOG=/dev/stderr
+      - KONG_ADMIN_ERROR_LOG=/dev/stderr
+      - KONG_LOG_LEVEL=debug
+      - KONG_ADMIN_LISTEN=0.0.0.0:8001, 0.0.0.0:8444 ssl
+      - KONG_ADMIN_GUI_URL=http://localhost:8002
+    ports:
+      - "8000:8000"
+      - "8443:8443"
+      - "8002:8002"
+      - "127.0.0.1:8001:8001"
+      - "127.0.0.1:8444:8444"
   plane-system:
     build:
       context: ./plane-system
@@ -7,14 +30,14 @@ services:
     depends_on:
       - plane-mysql
     ports:
-      - "8080:8080"
+      - "8081:8081"
     networks:
       - backend
   plane-mysql:
-    image: 'mysql:9.0'
+    image: 'mysql:8.4.2'
     restart: unless-stopped  #Nếu container bị dừng, nó sẽ khởi động lại, trừ khi tắt thủ công
     ports:
-      - "33062:3306"
+      - "33061:3306"
     environment:
       - 'MYSQL_DATABASE=plane-system'
       - 'MYSQL_USER=superadmin'
@@ -32,6 +55,7 @@ services:
 networks:
   backend:
     driver: bridge
+#    external: true   #Nếu network đã tồn tại thì sử dụng lại, mục đích để tắt service không mất network
 volumes:
   plane-system-mysql-data:
       driver: local

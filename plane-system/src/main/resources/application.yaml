@@ -1,9 +1,8 @@
 server:
-  port: 8080
+  port: 8081
 spring:
   application:
     name: plane-system
-
   datasource:
     url: jdbc:mysql://plane-mysql:3306/plane-system?createDatabaseIfNotExist=true
     username: superadmin
@@ -17,6 +16,15 @@ spring:
         hibernate:
             format_sql: true
             default_schema: plane-system
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /docs
+    operations-sorter: method
+    tags-sorter: alpha
+    filter: true
+    try-it-out-enabled: true
 logging:
   level:
     org:
